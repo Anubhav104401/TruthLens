@@ -1,111 +1,143 @@
-# TruthLens - Fake News Detection
+# TruthLens
 
-TruthLens is a demo-ready fake-news risk analysis app with:
+> **Hybrid explainable fake-news detection** with modern frontend, Python AI backend, and interactive explanation.
 
-- React frontend
-- FastAPI backend
-- TF-IDF plus statistical NLP features
-- Multiple model training and comparison
-- Rule-based risk adjustment
-- LIME explanation heatmap
-- Prediction history, stats, and feedback endpoints
+---
 
-The app estimates whether text resembles labelled real/fake news. It does not prove factual accuracy.
+## 🚀 What is TruthLens?
 
-## Project Layout
+TruthLens is a futuristic investigative pipeline that blends machine learning, NLP heuristics, and explainable AI to assess whether a news article is likely to be fake or real.
 
-```text
-fake-news-detector/
-  data/
-  backend/
-    main.py
-    preprocessing/
-    routes/
-    saved_models/
-    services/
-    training/
-  frontend/
-```
+This repo contains a full-stack proof-of-concept:
 
-## Backend Setup
+- **React + Vite** frontend for intuitive article analysis
+- **FastAPI** backend serving prediction APIs
+- **TF-IDF + custom NLP features** for document representation
+- **Rule-based risk scoring** layered on top of ML confidence
+- **LIME-powered explanation** for transparent decision-making
+- **Model training, storage, and analytics** baked into the backend
 
-```bash
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
+---
 
-## Download Dataset
+## ✨ Why this project stands out
 
-```bash
-python training/download_dataset.py
-```
+- **Hybrid intelligence**: combines statistical features with classic NLP and ML outputs
+- **Explainability first**: highlights influential words using LIME
+- **Interactive history**: tracks predictions and allows insight into past analysis
+- **Production-ready structure**: clean separation of frontend and backend services
 
-The downloader creates `data/fake_or_real_news.csv` and `data/dataset_source.json`.
+---
 
-You can also place the larger ISOT-style files in `data/`:
+## 🌐 Architecture
 
 ```text
-data/Fake.csv
-data/True.csv
+[ User Browser ]
+      │
+      │ HTTP
+      ▼
+[ Frontend / Vite ]
+      │
+      │ POST /api/predict
+      ▼
+[ FastAPI Backend ]
+      │
+      ├─ preprocess text
+      ├─ TF-IDF + feature engineering
+      ├─ ML probability scoring
+      ├─ rule engine penalty
+      ├─ LIME explanation generation
+      └─ response payload
 ```
 
-The trainer automatically prefers `Fake.csv` and `True.csv` when both are present.
+---
 
-## Train Models
+## 🎯 Features
 
-```bash
-python training/train_models.py
+- `POST /api/predict` → returns prediction + score + explanation
+- `POST /api/register`, `POST /api/login` → demo auth flow
+- `GET /api/history` → saved prediction history
+- `GET /api/model-info` → model metadata and metrics
+- `GET /api/stats` → aggregated analytics
+- Clean, modern dark UI with polished data presentation
+
+---
+
+## 🧠 Core backend components
+
+- `backend/main.py` — FastAPI app entrypoint
+- `backend/routes/api.py` — REST endpoints
+- `backend/services/prediction_service.py` — ML + rule engine + LIME
+- `backend/preprocessing/pipeline.py` — text cleaning + feature extraction
+- `backend/utils/database.py` — in-memory repo for demo storage
+- `backend/saved_models/` — trained model artifacts
+
+---
+
+## 💻 Quick start
+
+### Backend
+
+```powershell
+cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\backend"
+.\venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload --port 8000
 ```
 
-Saved outputs:
+### Frontend
 
-```text
-backend/saved_models/model.pkl
-backend/saved_models/vectorizer.pkl
-backend/saved_models/scaler.pkl
-backend/saved_models/metrics.json
-backend/saved_models/metadata.json
-backend/saved_models/classification_report.txt
-```
-
-## Run Backend
-
-```bash
-cd backend
-venv\Scripts\activate
-uvicorn main:app --reload
-```
-
-Backend URL:
-
-```text
-http://localhost:8000
-```
-
-## Run Frontend
-
-```bash
-cd frontend
+```powershell
+cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\frontend"
 npm install
 npm run dev
 ```
 
-Frontend URL:
+Then open:
+
+- `http://localhost:5173` for the UI
+- `http://localhost:8000/docs` for backend API docs
+
+---
+
+## ⚡ Pro tips
+
+- Use the frontend text editor to paste articles and watch realtime analysis
+- The backend includes an explainability layer so you can inspect which words matter most
+- This project is ideal for demoing how AI + rule systems can work together in a transparency-aware pipeline
+
+---
+
+## 📁 Project structure
 
 ```text
-http://localhost:5173
+fake-news-detector/
+  backend/
+    main.py
+    routes/api.py
+    services/prediction_service.py
+    preprocessing/pipeline.py
+    saved_models/
+    utils/database.py
+  frontend/
+    src/App.jsx
+    src/main.jsx
+    index.html
+  data/
+    fake_or_real_news.csv
 ```
 
-## Main API Endpoints
+---
 
-```text
-POST /api/register
-POST /api/login
-POST /api/predict
-GET  /api/history
-GET  /api/stats
-POST /api/feedback
-GET  /api/model-info
-```
+## 🔧 Notes
+
+- This is a detection assist tool, not a proof of truth
+- The ML model estimates text behavior, not factual correctness
+- For production, swap the demo DB and credential flow with persistent storage and secure auth
+
+---
+
+## 📬 Want to contribute?
+
+- Add new explainability visualizations
+- Improve the NLP preprocessing pipeline
+- Add more model evaluation metrics
+- Turn the demo into a fully deployed SaaS app
