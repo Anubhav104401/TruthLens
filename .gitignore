@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.pyt
+*.log
+*.sqlite3
+*.db
+*.sqlite
+
+# virtual environments
+backend/venv/
+.venv/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Environment files
+.env
+.env.*
+
+# JetBrains
+.idea/
+
+# Mac
+*.DS_Store

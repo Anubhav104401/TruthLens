@@ -1,0 +1,6 @@
+{
+  "name": "fake_or_real_news.csv",
+  "url": "https://raw.githubusercontent.com/lutzhamel/fake-news/master/data/fake_or_real_news.csv",
+  "source_page": "https://github.com/lutzhamel/fake-news/blob/master/data/fake_or_real_news.csv",
+  "description": "Labelled fake/real news CSV derived from the commonly used fake-or-real-news dataset."
+}

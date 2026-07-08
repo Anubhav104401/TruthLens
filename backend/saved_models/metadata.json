@@ -1,0 +1,29 @@
+{
+  "model_name": "passive_aggressive",
+  "trained_at": "2026-07-08T17:37:51.230647+00:00",
+  "dataset_source": "fake_or_real_news.csv",
+  "dataset_rows": 6277,
+  "train_rows": 5021,
+  "test_rows": 1256,
+  "label_mapping": {
+    "Real": 0,
+    "Fake": 1
+  },
+  "tfidf_vocabulary_size": 20000,
+  "feature_columns": [
+    "word_count",
+    "sentence_count",
+    "avg_sentence_length",
+    "avg_word_length",
+    "capital_ratio",
+    "exclamation_count",
+    "question_count",
+    "url_count",
+    "quote_count",
+    "repeated_word_ratio",
+    "first_person_ratio",
+    "sensational_term_count"
+  ],
+  "selection_metric": "highest f1, then highest accuracy",
+  "warning": "This model estimates whether text resembles labelled real/fake news. It is not a fact-checker."
+}

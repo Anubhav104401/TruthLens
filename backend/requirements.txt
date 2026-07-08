@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+pydantic
+email-validator
+python-multipart
+passlib[bcrypt]
+PyJWT
+pymongo
+pandas
+numpy
+scipy
+scikit-learn
+nltk
+joblib
+lime
+requests
