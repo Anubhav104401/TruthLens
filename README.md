@@ -1,112 +1,374 @@
 # TruthLens
 
-> **Hybrid explainable fake-news detection** with modern frontend, Python AI backend, and interactive explanation.
+> **Intelligent Fake News Detection System using NLP, Machine Learning, Hybrid Logic, and Explainable AI**
 
 ---
 
-## 🚀 What is TruthLens?
+## 🚀 Project Overview
 
-TruthLens is a futuristic investigative pipeline that blends machine learning, NLP heuristics, and explainable AI to assess whether a news article is likely to be fake or real.
+TruthLens is not just another fake news classifier. It is a full-stack system built to:
 
-This repo contains a full-stack proof-of-concept:
+- classify whether a news article is likely **Real** or **Fake**
+- compute a **confidence score** for every prediction
+- highlight suspicious words and phrases
+- provide a human-readable explanation for each result
+- support API-driven integration for frontend and future services
+- store prediction history for later analysis
 
-- **React + Vite** frontend for intuitive article analysis
-- **FastAPI** backend serving prediction APIs
-- **TF-IDF + custom NLP features** for document representation
-- **Rule-based risk scoring** layered on top of ML confidence
-- **LIME-powered explanation** for transparent decision-making
-- **Model training, storage, and analytics** baked into the backend
-
----
-
-## ✨ Why this project stands out
-
-- **Hybrid intelligence**: combines statistical features with classic NLP and ML outputs
-- **Explainability first**: highlights influential words using LIME
-- **Interactive history**: tracks predictions and allows insight into past analysis
-- **Production-ready structure**: clean separation of frontend and backend services
+This project bridges the gap between a college-level proof of concept and a production-minded pipeline.
 
 ---
 
-## 🌐 Architecture
+## 🎯 Why this is a strong project
+
+Most teams stop at a single notebook model. TruthLens goes further by combining:
+
+- a modern **React UI** for easy interaction
+- a responsive **FastAPI backend** for scalable REST execution
+- a **hybrid intelligence engine** that uses both ML and handcrafted rules
+- **explainability** through LIME so users understand the “why” behind results
+- a flexible design that can later be integrated with a real database or cloud deployment
+
+This makes TruthLens suitable for a portfolio, demo, or technical interview discussion.
+
+---
+
+## 🧠 Project Aim
+
+TruthLens is designed to answer two questions:
+
+1. **Is this article fake or real?**
+2. **Why did the system say that?**
+
+A naive model can answer the first question, but the second one is what separates a demo from a real system.
+
+---
+
+## 📦 Full Architecture
 
 ```text
-[ User Browser ]
-      │
-      │ HTTP
-      ▼
-[ Frontend / Vite ]
-      │
-      │ POST /api/predict
-      ▼
-[ FastAPI Backend ]
-      │
-      ├─ preprocess text
-      ├─ TF-IDF + feature engineering
-      ├─ ML probability scoring
-      ├─ rule engine penalty
-      ├─ LIME explanation generation
-      └─ response payload
+                   +------+
+                   | User |
+                   +--+---+
+                      |
+                      ▼
+             +-------------------+
+             | React Frontend UI |
+             +-------------------+
+                      |
+              HTTP POST /api/predict
+                      |
+                      ▼
+             +-------------------+
+             |   FastAPI Backend |
+             +-------------------+
+                      |
+     +----------------+----------------+
+     |                                 |
++------------+                   +--------------+
+|  ML Model  |                   | Rule Engine  |
++------------+                   +--------------+
+     |                                 |
+     +----------------+----------------+
+                      |
+             +-------------------+
+             |  Final Risk Score |
+             +-------------------+
+                      |
+                      ▼
+               Prediction Result
+                      |
+                      ▼
+              Prediction History
 ```
 
 ---
 
-## 🎯 Features
+## 🧩 What this repo contains
 
-- `POST /api/predict` → returns prediction + score + explanation
-- `POST /api/register`, `POST /api/login` → demo auth flow
-- `GET /api/history` → saved prediction history
-- `GET /api/model-info` → model metadata and metrics
-- `GET /api/stats` → aggregated analytics
-- Clean, modern dark UI with polished data presentation
+- `frontend/` — React + Vite UI, text editor, result dashboard, charts, and explainability view
+- `backend/` — FastAPI backend, prediction logic, preprocessing, rule engine, auth, and mock data storage
+- `data/` — sample datasets used for model training and exploration
+- `backend/saved_models/` — serialized model, vectorizer, scaler, and metrics output
 
 ---
 
-## 🧠 Core backend components
-
-- `backend/main.py` — FastAPI app entrypoint
-- `backend/routes/api.py` — REST endpoints
-- `backend/services/prediction_service.py` — ML + rule engine + LIME
-- `backend/preprocessing/pipeline.py` — text cleaning + feature extraction
-- `backend/utils/database.py` — in-memory repo for demo storage
-- `backend/saved_models/` — trained model artifacts
-
----
-
-## 💻 Quick start
-
-### Backend
-
-```powershell
-cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\backend"
-.\venv\Scripts\Activate.ps1
-python -m uvicorn main:app --reload --port 8000
-```
+## 🛠️ Tech Stack
 
 ### Frontend
 
-```powershell
-cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\frontend"
-npm install
-npm run dev
-```
+- **React** — interactive UI and component-based structure
+- **Vite** — fast development server and build pipeline
+- **Tailwind CSS** — utility-first styling for polished visuals
+- **Axios** — browser-to-backend HTTP communication
+- **react-chartjs-2 / Chart.js** — prediction score visualization
+- **Framer Motion** — smooth animated transitions
+- **React Icons** — polished iconography
 
-Then open:
+### Backend
 
-- `http://localhost:5173` for the UI
-- `http://localhost:8000/docs` for backend API docs
+- **FastAPI** — high-performance Python web framework
+- **Uvicorn** — ASGI server for running the app
+- **Pydantic** — request validation and schema serialization
+- **joblib** — model artifact persistence
+- **NLTK** — tokenization, stopwords, and lemmatization utilities
+- **scikit-learn** — TF-IDF and model evaluation
+- **LIME** — local explainability engine
+
+### Optional / Future
+
+- **MongoDB Atlas** — replace the mock database with cloud storage
+- **Render / Vercel** — backend and frontend deployment
+- **SHAP** — deeper explainability when scaling beyond LIME
+- **BERT / Transformer models** — for advanced semantic understanding
 
 ---
 
-## ⚡ Pro tips
+## 🔍 Internal Functioning Explained
 
-- Use the frontend text editor to paste articles and watch realtime analysis
-- The backend includes an explainability layer so you can inspect which words matter most
-- This project is ideal for demoing how AI + rule systems can work together in a transparency-aware pipeline
+### 1. User input
+
+The user pastes an article into the frontend text box and clicks analyze.
+
+### 2. Frontend sends request
+
+The React app sends a JSON request to `POST /api/predict` with the article text.
+
+### 3. Backend preprocessing
+
+Back in the backend, the text enters a cleaning pipeline:
+
+- lowercase conversion
+- HTML tag removal
+- URL removal
+- email removal
+- numeric cleanup
+- punctuation removal
+- tokenization
+- stopword removal
+- lemmatization
+
+This makes the raw article consistent and easier for the model to understand.
+
+### 4. Feature engineering
+
+TruthLens does more than TF-IDF. It combines:
+
+- **TF-IDF vectorization**: converts words into numerical importance scores
+- **statistical text features**: word count, average sentence length, capitalization ratio, punctuation count, URL count
+
+Why use both? TF-IDF captures meaning from words and phrases, while statistical features capture writing style and tone.
+
+### 5. Hybrid scoring
+
+The system evaluates the article from two angles:
+
+- **ML model score**: probability that the text is fake based on training data
+- **rule engine score**: handcrafted penalties for suspicious traits
+
+The final risk score is computed by combining these two.
+
+### 6. Explainability
+
+The app uses LIME to show which words influenced the decision. It returns a list of word-weight pairs that the frontend highlights in the text.
+
+This helps users understand whether the system is reacting to legitimate signals or just random phrases.
+
+### 7. Response back to user
+
+The backend returns a result object containing:
+
+- `prediction` — Fake or Real
+- `ml_confidence` — probability from the ML model
+- `rule_penalty` — handcrafted risk score
+- `final_score` — combined score
+- `explanation` — words that mattered most
+
+The frontend renders this as a dashboard with colors, charts, and highlighted text.
 
 ---
 
-## 📁 Project structure
+## 📘 Why these algorithms were chosen
+
+### TF-IDF
+
+TF-IDF is a classic feature extractor for text. It measures how important a word is in one document relative to the corpus.
+
+Why this is good:
+
+- fast to compute
+- works well on moderate datasets
+- easy to interpret
+
+What else could be used:
+
+- **Word embeddings** (Word2Vec, GloVe)
+- **Transformer embeddings** (BERT, RoBERTa)
+- **FastText**
+
+### Regression / Classification Model
+
+TruthLens currently uses a model saved as `model.pkl` from scikit-learn.
+
+Why this is good:
+
+- reliable baseline performance
+- easy to serialize with `joblib`
+- suitable for text classification
+
+What else could be used:
+
+- **Logistic Regression** — simple and interpretable
+- **Naive Bayes** — great for text with word independence assumption
+- **Linear SVM** — strong baseline for sparse vectors
+- **Random Forest / XGBoost** — capture non-linear patterns
+- **Transformers** — best for semantic nuance
+
+### LIME explainability
+
+LIME is used because it can explain model decisions for individual texts by perturbing inputs and observing outputs.
+
+Why this is good:
+
+- local explanation for each prediction
+- easy to display as word weights
+- helps detect whether the model is focusing on real signals
+
+Alternative explainability tools:
+
+- **SHAP** — more rigorous global and local interpretation
+- **ELI5** — model-agnostic explanations
+
+---
+
+## 🧪 Data preprocessing pipeline
+
+The project cleans text in the following order:
+
+1. **Lowercase** — reduce casing noise
+2. **Remove HTML** — strip tags from copied content
+3. **Remove URLs** — remove external web addresses
+4. **Remove emails** — remove private metadata
+5. **Remove numbers** — remove digits that add noise
+6. **Remove punctuation** — simplify token boundaries
+7. **Tokenize** — split text into individual words
+8. **Remove stopwords** — remove common words like "the", "and", "of"
+9. **Lemmatize** — convert words to base form (`running` → `run`)
+10. **Rejoin tokens** — build the cleaned text for vectorization
+
+This sequence is important because each step prepares the text for the next.
+
+---
+
+## 🔬 Feature engineering explained
+
+TruthLens extracts two kinds of features:
+
+### 1. TF-IDF features
+
+Used to measure how strongly a word or phrase appears in the article relative to the dataset.
+
+### 2. Text statistics
+
+These features capture writing style:
+
+- total word count
+- average sentence length
+- ratio of uppercase letters
+- number of exclamation marks
+- number of question marks
+- count of URLs
+
+These engineering features act as a second source of truth. A short sensational article with many clicks is more suspicious, even if the model probability is not extremely high.
+
+---
+
+## 🧠 Rule engine logic
+
+A pure ML model can miss simple signals that humans recognize immediately.
+
+This project adds a lightweight rule engine that adds penalty points for:
+
+- repeated exclamation marks
+- clickbait trigger words like `BREAKING` or `SHOCKING`
+- too much ALL CAPS text
+- article length that is too short
+
+Rules are intentionally simple. They capture stylistic patterns of low-quality fake news.
+
+Why this improves the project:
+
+- hybrid systems are more robust
+- the rule engine can catch adversarial or noisy input
+- rules provide a backup signal when ML is uncertain
+
+---
+
+## 🧾 API design
+
+### `POST /api/register`
+Register a demo user.
+
+### `POST /api/login`
+Login and receive a bearer token.
+
+### `POST /api/predict`
+Analyze the article text and return:
+
+- prediction
+- confidence
+- rule penalty
+- final score
+- explanation
+
+### `GET /api/history`
+Retrieve saved prediction history for the current user.
+
+These endpoints are built with FastAPI and `Pydantic` schemas for request validation.
+
+---
+
+## 💾 Data storage today
+
+The current repo uses an in-memory mock database via `backend/utils/database.py`.
+
+That means:
+
+- user accounts and predictions are stored in runtime memory
+- they reset when the server restarts
+
+This is a simple demo approach, and it is intentionally replaceable with MongoDB Atlas or any real database later.
+
+---
+
+## 🔒 Security and auth
+
+The backend is structured for secure operation using:
+
+- **JWT authentication** for protected routes
+- **hashed passwords** using bcrypt-style hashing
+- **CORS** middleware to safely accept frontend requests
+- **input validation** through Pydantic models
+
+Even though this is a prototype, the code follows a production-style security pattern.
+
+---
+
+## 🧩 Frontend flow
+
+The frontend enables users to:
+
+- paste an article
+- run analysis
+- see prediction results
+- view confidence scores
+- inspect highlighted explanations
+
+It is built to be responsive, modern, and easy to understand.
+
+---
+
+## 📁 Project layout
 
 ```text
 fake-news-detector/
@@ -127,17 +389,70 @@ fake-news-detector/
 
 ---
 
-## 🔧 Notes
+## 🚀 Running the full system
 
-- This is a detection assist tool, not a proof of truth
-- The ML model estimates text behavior, not factual correctness
-- For production, swap the demo DB and credential flow with persistent storage and secure auth
+### Backend
+
+```powershell
+cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\backend"
+.\venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload --port 8000
+```
+
+### Frontend
+
+```powershell
+cd "c:\Users\anubh\Projects\Placement project\fake-news-detector\frontend"
+npm install
+npm run dev
+```
+
+### Open in browser
+
+- `http://localhost:5173` — UI
+- `http://localhost:8000/docs` — backend API documentation
 
 ---
 
-## 📬 Want to contribute?
+## 🧪 How to extend this repo
 
-- Add new explainability visualizations
-- Improve the NLP preprocessing pipeline
-- Add more model evaluation metrics
-- Turn the demo into a fully deployed SaaS app
+### Replace mock DB with MongoDB Atlas
+The backend is already organized so the `database.py` file can be swapped with a real Mongo client.
+
+### Improve the model
+Train new models and save them to `backend/saved_models/`.
+
+### Deploy frontend and backend separately
+Use Vercel for the frontend and Render for the backend.
+
+### Add richer explainability
+Replace or augment LIME with SHAP for more advanced model analysis.
+
+---
+
+## 🌟 Why this is not just "another fake news detector"
+
+This repo is designed as a hybrid detection platform, not merely a classifier.
+
+It combines:
+
+- raw model probability
+- handcrafted risk heuristics
+- explanation for every result
+- clean frontend presentation
+- clearly separated backend modules
+
+That makes it a much better demonstration of real engineering than a single notebook with Naive Bayes.
+
+---
+
+## 📌 Notes for future reviewers
+
+If you are reading this as a reviewer, ask to see:
+
+- the data preprocessing pipeline in `backend/preprocessing/pipeline.py`
+- the prediction logic in `backend/services/prediction_service.py`
+- the frontend explanation rendering in `frontend/src/App.jsx`
+- the API definitions in `backend/routes/api.py`
+
+This README is intentionally deep so that both technical and non-technical viewers can understand the system.
