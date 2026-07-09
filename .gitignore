@@ -47,3 +47,8 @@ dist/
 
 # Mac
 *.DS_Store
+
+# Datasets
+data/Fake.csv
+data/True.csv
+data/liar/

@@ -10,7 +10,9 @@ from lime.lime_text import LimeTextExplainer
 from scipy.sparse import csr_matrix, hstack
 
 from preprocessing.pipeline import FeatureEngineer, TextCleaner
-
+import asyncio
+from services.gemini_verification_service import GeminiVerificationService
+from services.ensemble_scorer import blend, detect_conflict, rescale_rule_adjustment
 
 class RuleEngine:
     SENSATIONAL_PHRASES = {
@@ -213,6 +215,7 @@ class PredictionService:
         self.rule_engine = RuleEngine()
         self.article_profiler = ArticleProfiler()
         self.explainer = LimeTextExplainer(class_names=["Real", "Fake"], random_state=42)
+        self.gemini_service = GeminiVerificationService()
 
     def _load_metadata(self, path):
         if not path.exists():
@@ -280,35 +283,87 @@ class PredictionService:
         except Exception:
             return []
 
-    def analyze_article(self, text):
-        if not isinstance(text, str) or not text.strip():
-            raise ValueError("Text is required for prediction.")
-
+    def _analyze_article_local(self, text):
         rule_result = self.rule_engine.evaluate(text)
         profile = self.article_profiler.profile(text)
 
         probabilities = self.predict_pipeline_fn([text])[0]
         ml_fake_probability = float(probabilities[1] * 100)
-        final_score = float(np.clip(ml_fake_probability + rule_result["adjustment"], 0, 100))
-        prediction = self._label_from_score(final_score, profile)
-        confidence = self._confidence(prediction, final_score)
 
         reasons = []
-        if prediction == "Needs Review":
-            reasons.extend(profile["reasons"])
-            if not profile["reasons"]:
-                reasons.append("The model score is too close to the decision boundary.")
-        elif prediction == "Likely Fake":
-            reasons.append("The text is closer to fake-news examples in the trained dataset.")
-        else:
-            reasons.append("The text is closer to real-news examples in the trained dataset.")
-        reasons.extend(rule_result["reasons"])
-
         explanations = self._explain(text)
         highlight_terms = set(rule_result["highlight_terms"])
         for term, weight in explanations:
             if weight > 0:
                 highlight_terms.add(term)
+
+        return {
+            "rule_result": rule_result,
+            "profile": profile,
+            "ml_fake_probability": ml_fake_probability,
+            "reasons": reasons,
+            "highlight_terms": highlight_terms,
+            "explanations": explanations
+        }
+
+    async def analyze_article(self, text):
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("Text is required for prediction.")
+
+        local_task = asyncio.to_thread(self._analyze_article_local, text)
+        gemini_task = self.gemini_service.verify_article(text)
+
+        local_result, gemini_result = await asyncio.gather(local_task, gemini_task, return_exceptions=True)
+
+        if isinstance(local_result, Exception):
+            raise RuntimeError(f"Local ML pipeline failed: {local_result}")
+
+        if isinstance(gemini_result, Exception):
+            # Graceful degradation if gemini fails completely outside of its own try/catch
+            gemini_result = self.gemini_service._create_fallback_response(str(gemini_result))
+
+        rule_result = local_result["rule_result"]
+        profile = local_result["profile"]
+        ml_fake_probability = local_result["ml_fake_probability"]
+        local_reasons = local_result["reasons"]
+        highlight_terms = local_result["highlight_terms"]
+        explanations = local_result["explanations"]
+
+        gemini_enabled = str(os.getenv("ENABLE_GEMINI_VERIFICATION", "true")).lower() == "true"
+        gemini_available = gemini_enabled and gemini_result.get("confidence", 0) > 0
+        gemini_score = gemini_result.get("fake_likelihood", 50.0)
+        gemini_confidence = gemini_result.get("confidence", 0.0)
+        
+        degraded_mode = gemini_enabled and not gemini_available
+        degraded_reason = gemini_result.get("summary") if degraded_mode else None
+
+        rule_score = rescale_rule_adjustment(rule_result["adjustment"])
+        
+        final_score, weights_used = blend(
+            ml_score=ml_fake_probability,
+            rule_score=rule_score,
+            gemini_score=gemini_score,
+            gemini_confidence=gemini_confidence,
+            gemini_available=gemini_available
+        )
+        
+        conflict = detect_conflict(ml_fake_probability, gemini_score, gemini_confidence)
+
+        prediction = self._label_from_score(final_score, profile)
+        confidence = self._confidence(prediction, final_score)
+
+        if prediction == "Needs Review":
+            local_reasons.extend(profile["reasons"])
+            if not profile["reasons"]:
+                local_reasons.append("The combined score is too close to the decision boundary.")
+        elif prediction == "Likely Fake":
+            local_reasons.append("The combined analysis indicates the text resembles fake news or contains false claims.")
+        else:
+            local_reasons.append("The combined analysis indicates the text resembles real news or contains verified claims.")
+        local_reasons.extend(rule_result["reasons"])
+        
+        if conflict:
+            local_reasons.append("Note: The local machine learning model and live web verification yielded conflicting results.")
 
         return {
             "ml_confidence": round(ml_fake_probability, 2),
@@ -319,15 +374,29 @@ class PredictionService:
             "confidence": round(confidence, 2),
             "prediction": prediction,
             "risk_level": self._risk_level(prediction, final_score),
-            "reasons": reasons,
+            "reasons": local_reasons,
             "highlight_terms": sorted(highlight_terms),
             "article_profile": profile,
             "explanation": explanations,
             "model_name": self.metadata.get("model_name", "unknown"),
             "model_warning": self.metadata.get(
                 "warning",
-                "This model estimates dataset similarity; it is not a fact-checker.",
+                "This model estimates dataset similarity; it is not a fact-checker."
             ),
+            "gemini_enabled": gemini_enabled,
+            "gemini_verdict": gemini_result.get("verdict"),
+            "gemini_fake_likelihood": gemini_result.get("fake_likelihood"),
+            "gemini_confidence": gemini_result.get("confidence"),
+            "gemini_claims_checked": gemini_result.get("claims_checked", []),
+            "gemini_summary": gemini_result.get("summary"),
+            "gemini_sources": gemini_result.get("sources", []),
+            "gemini_search_queries": gemini_result.get("search_queries", []),
+            "gemini_search_suggestions_html": gemini_result.get("search_suggestions_html"),
+            "rule_score": round(rule_score, 2),
+            "weights_used": weights_used,
+            "degraded_mode": degraded_mode,
+            "degraded_reason": degraded_reason,
+            "signal_conflict": conflict
         }
 
     def model_info(self):

@@ -25,8 +25,8 @@ Most teams stop at a single notebook model. TruthLens goes further by combining:
 
 - a modern **React UI** for easy interaction
 - a responsive **FastAPI backend** for scalable REST execution
-- a **hybrid intelligence engine** that uses both ML and handcrafted rules
-- **explainability** through LIME so users understand the “why” behind results
+- a **three-way hybrid intelligence engine** that uses ML, handcrafted rules, and **live web verification via Gemini**
+- **explainability** through LIME and verifiable source citations so users understand the “why” behind results
 - a flexible design that can later be integrated with a real database or cloud deployment
 
 This makes TruthLens suitable for a portfolio, demo, or technical interview discussion.
@@ -63,13 +63,13 @@ A naive model can answer the first question, but the second one is what separate
              |   FastAPI Backend |
              +-------------------+
                       |
-     +----------------+----------------+
-     |                                 |
-+------------+                   +--------------+
-|  ML Model  |                   | Rule Engine  |
-+------------+                   +--------------+
-     |                                 |
-     +----------------+----------------+
+     +----------------+----------------+------------------+
+     |                |                |                  |
++------------+ +--------------+ +-----------------------+
+|  ML Model  | | Rule Engine  | | Gemini Web Verifier   |
++------------+ +--------------+ +-----------------------+
+     |                |                |                  |
+     +----------------+----------------+------------------+
                       |
              +-------------------+
              |  Final Risk Score |
@@ -161,12 +161,13 @@ Why use both? TF-IDF captures meaning from words and phrases, while statistical 
 
 ### 5. Hybrid scoring
 
-The system evaluates the article from two angles:
+The system evaluates the article from three angles:
 
 - **ML model score**: probability that the text is fake based on training data
 - **rule engine score**: handcrafted penalties for suspicious traits
+- **Gemini web verification**: live Google Search grounding to verify specific claims
 
-The final risk score is computed by combining these two.
+The final risk score is computed by combining these three using a confidence-weighted ensemble.
 
 ### 6. Explainability
 

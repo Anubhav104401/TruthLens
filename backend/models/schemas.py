@@ -28,6 +28,21 @@ class PredictionResponse(BaseModel):
     explanation: List[List] # [[word, weight], ...]
     model_name: str
     model_warning: str
+    # New fields for Phase 2 ensemble
+    gemini_enabled: bool
+    gemini_verdict: Optional[str] = None
+    gemini_fake_likelihood: Optional[float] = None
+    gemini_confidence: Optional[float] = None
+    gemini_claims_checked: Optional[List[str]] = None
+    gemini_summary: Optional[str] = None
+    gemini_sources: Optional[List[Dict[str, str]]] = None
+    gemini_search_queries: Optional[List[str]] = None
+    gemini_search_suggestions_html: Optional[str] = None
+    rule_score: float
+    weights_used: Dict[str, float]
+    degraded_mode: bool
+    degraded_reason: Optional[str] = None
+    signal_conflict: bool
 
 class FeedbackRequest(BaseModel):
     prediction_id: Optional[str] = None

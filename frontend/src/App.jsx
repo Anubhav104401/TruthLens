@@ -284,7 +284,7 @@ function App() {
               ) : (
                 <FiSearch />
               )}
-              Analyze
+              {loading ? 'Analyzing with model, rules, and live web search…' : 'Analyze'}
             </button>
           </form>
         </section>
@@ -326,15 +326,27 @@ function App() {
                   </div>
                   <div className="grid content-start gap-3 text-sm">
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Model fake risk</span>
+                      <span className="text-zinc-400">
+                        Model fake risk {result.weights_used?.ml !== undefined && `(${(result.weights_used.ml * 100).toFixed(1)}% weight)`}
+                      </span>
                       <span className="font-medium text-zinc-100">{result.ml_confidence}%</span>
                     </div>
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Rule adjustment</span>
+                      <span className="text-zinc-400">
+                        Rule adjustment {result.weights_used?.rule !== undefined && `(${(result.weights_used.rule * 100).toFixed(1)}% weight)`}
+                      </span>
                       <span className={result.rule_penalty > 0 ? 'font-medium text-rose-300' : 'font-medium text-emerald-300'}>
                         {formatAdjustment(result.rule_penalty)}
                       </span>
                     </div>
+                    {result.gemini_enabled && !result.degraded_mode && (
+                        <div className="flex justify-between border-b border-zinc-800 pb-2">
+                          <span className="text-zinc-400">
+                            Web verification {result.weights_used?.gemini !== undefined && `(${(result.weights_used.gemini * 100).toFixed(1)}% weight)`}
+                          </span>
+                          <span className="font-medium text-zinc-100">{result.gemini_fake_likelihood}%</span>
+                        </div>
+                    )}
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
                       <span className="text-zinc-400">Decision confidence</span>
                       <span className="font-medium text-zinc-100">{result.confidence}%</span>
@@ -363,6 +375,67 @@ function App() {
                   <div className="mt-3 max-h-52 overflow-y-auto pr-2 text-sm">
                     <ExplanationHighlighter text={text} explanation={result.explanation} />
                   </div>
+                </div>
+
+                <div className="mt-5 border-t border-zinc-800 pt-5">
+                  <h3 className="text-sm font-semibold text-zinc-100">Web Verification</h3>
+                  {result.gemini_enabled === false || result.degraded_mode ? (
+                    <p className="mt-3 text-sm text-zinc-400">
+                      {result.degraded_reason || "Web verification unavailable for this result."}
+                    </p>
+                  ) : (
+                    <div className="mt-3 space-y-4 text-sm text-zinc-300">
+                      <div className="flex items-center gap-3">
+                        <span className="rounded bg-zinc-800 px-2 py-1 font-semibold text-zinc-100">
+                          {result.gemini_verdict}
+                        </span>
+                        <span className="text-zinc-400">Confidence: {result.gemini_confidence}%</span>
+                      </div>
+                      
+                      {result.gemini_claims_checked && result.gemini_claims_checked.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-zinc-200">Claims Checked:</h4>
+                          <ul className="mt-2 list-inside list-disc space-y-1">
+                            {result.gemini_claims_checked.map((claim, idx) => (
+                              <li key={idx}>{claim}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {result.gemini_sources && result.gemini_sources.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-zinc-200">Sources:</h4>
+                          <div className="mt-2 space-y-2">
+                            {result.gemini_sources.map((source, idx) => {
+                              let hostname = source.url;
+                              try { hostname = new URL(source.url).hostname; } catch (e) {}
+                              return (
+                                <a 
+                                  key={idx} 
+                                  href={source.url} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="block rounded border border-zinc-800 p-3 hover:border-zinc-700 transition"
+                                >
+                                  <div className="font-medium text-cyan-400">{source.title}</div>
+                                  <div className="text-xs text-zinc-500 mt-1">{hostname}</div>
+                                  <div className="text-sm mt-1">{source.snippet}</div>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {result.gemini_search_suggestions_html && (
+                        <div 
+                          className="mt-4 pt-4 border-t border-zinc-800"
+                          dangerouslySetInnerHTML={{ __html: result.gemini_search_suggestions_html }} 
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <p className="mt-5 border-t border-zinc-800 pt-4 text-xs leading-5 text-zinc-500">

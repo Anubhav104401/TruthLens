@@ -48,7 +48,9 @@ class TextCleaner:
             text,
             flags=re.IGNORECASE,
         )
-        text = re.sub(r"\b(?:reuters|associated press|ap news)\b", " ", text, flags=re.IGNORECASE)
+        # ISOT-style fake articles sometimes contain a boilerplate prefix
+        text = re.sub(r"^\s*21st Century Wire says\s*[-:]?\s*", " ", text, flags=re.IGNORECASE)
+        text = re.sub(r"\b(?:reuters|associated press|ap news|21st century wire)\b", " ", text, flags=re.IGNORECASE)
         return text
     
     def clean(self, text):

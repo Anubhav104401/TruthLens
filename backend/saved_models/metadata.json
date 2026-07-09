@@ -1,10 +1,14 @@
 {
-  "model_name": "passive_aggressive",
-  "trained_at": "2026-07-08T17:37:51.230647+00:00",
-  "dataset_source": "fake_or_real_news.csv",
-  "dataset_rows": 6277,
-  "train_rows": 5021,
-  "test_rows": 1256,
+  "model_name": "linear_svm",
+  "trained_at": "2026-07-09T10:02:50.561475+00:00",
+  "dataset_source": [
+    "ISOT (Fake.csv + True.csv)",
+    "fake_or_real_news.csv",
+    "LIAR Dataset"
+  ],
+  "dataset_rows": 53847,
+  "train_rows": 43077,
+  "test_rows": 10770,
   "label_mapping": {
     "Real": 0,
     "Fake": 1

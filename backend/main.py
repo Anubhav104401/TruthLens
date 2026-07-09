@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.api import router
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables from the project root .env file
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 app = FastAPI(
     title="Intelligent Fake News Detection System",

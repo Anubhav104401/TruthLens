@@ -52,7 +52,7 @@ async def predict(request: PredictionRequest, current_user: dict = Depends(get_c
     try:
         # Analyze article
         start_time = datetime.datetime.utcnow()
-        result = prediction_service.analyze_article(request.text)
+        result = await prediction_service.analyze_article(request.text)
         end_time = datetime.datetime.utcnow()
         
         # Log prediction
@@ -70,7 +70,15 @@ async def predict(request: PredictionRequest, current_user: dict = Depends(get_c
             "reasons": result["reasons"],
             "model_name": result["model_name"],
             "timestamp": start_time,
-            "processing_time_ms": (end_time - start_time).total_seconds() * 1000
+            "processing_time_ms": (end_time - start_time).total_seconds() * 1000,
+            "gemini_enabled": result.get("gemini_enabled"),
+            "gemini_verdict": result.get("gemini_verdict"),
+            "gemini_fake_likelihood": result.get("gemini_fake_likelihood"),
+            "gemini_confidence": result.get("gemini_confidence"),
+            "rule_score": result.get("rule_score"),
+            "weights_used": result.get("weights_used"),
+            "degraded_mode": result.get("degraded_mode"),
+            "signal_conflict": result.get("signal_conflict")
         }
         await predictions_collection.insert_one(prediction_log)
         

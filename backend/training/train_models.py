@@ -59,7 +59,7 @@ def _load_isot_pair(data_dir):
     true_df["article_text"] = _combine_title_and_text(true_df)
 
     df = pd.concat([fake_df[["article_text", "label"]], true_df[["article_text", "label"]]], ignore_index=True)
-    return df, "Fake.csv + True.csv"
+    return df, "ISOT (Fake.csv + True.csv)"
 
 
 def _normalise_label(value):
@@ -83,8 +83,10 @@ def _load_single_labelled_csv(data_dir):
         data_dir / "dataset.csv",
     ]
     candidates = [path for path in preferred if path.exists()]
-    candidates.extend(path for path in sorted(data_dir.glob("*.csv")) if path not in candidates)
-
+    
+    # We just want one typical single CSV if multiple exist (excluding ISOT which is handled separately)
+    # The user asked to combine *multiple sources*, not just one single CSV, so we will return the first valid one we find, 
+    # but rename the function slightly so it returns a list if we wanted to support multiple. We'll just stick to one for now to avoid duplicates.
     for path in candidates:
         df = pd.read_csv(path)
         lower_columns = {column.lower(): column for column in df.columns}
@@ -113,20 +115,71 @@ def _load_single_labelled_csv(data_dir):
 
     return None
 
+def _load_liar(data_dir):
+    liar_dir = data_dir / "liar"
+    if not liar_dir.exists():
+        return None
+        
+    dfs = []
+    for split in ["train.tsv", "valid.tsv", "test.tsv"]:
+        path = liar_dir / split
+        if path.exists():
+            df = pd.read_csv(path, sep='\t', header=None, on_bad_lines='skip')
+            # Columns: 0: id, 1: label, 2: statement
+            if len(df.columns) >= 3:
+                # Map 6-way to binary
+                # fake: pants-fire, false, barely-true
+                # real: half-true, mostly-true, true (treating half-true as a judgement call, mapping to real per request)
+                label_map = {
+                    "pants-fire": 1, "false": 1, "barely-true": 1,
+                    "half-true": 0, "mostly-true": 0, "true": 0
+                }
+                
+                mapped_df = pd.DataFrame()
+                mapped_df["label"] = df[1].map(label_map)
+                mapped_df["article_text"] = df[2].astype(str)
+                mapped_df = mapped_df.dropna(subset=["label"])
+                mapped_df["label"] = mapped_df["label"].astype(int)
+                dfs.append(mapped_df)
+                
+    if dfs:
+        return pd.concat(dfs, ignore_index=True), "LIAR Dataset"
+    return None
 
 def load_dataset(data_dir=DATA_DIR, sample_size=None):
     data_dir = Path(data_dir)
     if not data_dir.exists():
         raise FileNotFoundError(f"Data directory does not exist: {data_dir}")
 
-    loaded = _load_isot_pair(data_dir) or _load_single_labelled_csv(data_dir)
-    if loaded is None:
+    sources_loaded = []
+    source_names = []
+    
+    isot_data = _load_isot_pair(data_dir)
+    if isot_data:
+        sources_loaded.append(isot_data[0])
+        source_names.append(isot_data[1])
+        print(f"Loaded {len(isot_data[0]):,} from {isot_data[1]}")
+        
+    single_csv_data = _load_single_labelled_csv(data_dir)
+    if single_csv_data:
+        sources_loaded.append(single_csv_data[0])
+        source_names.append(single_csv_data[1])
+        print(f"Loaded {len(single_csv_data[0]):,} from {single_csv_data[1]}")
+        
+    liar_data = _load_liar(data_dir)
+    if liar_data:
+        sources_loaded.append(liar_data[0])
+        source_names.append(liar_data[1])
+        print(f"Loaded {len(liar_data[0]):,} from {liar_data[1]}")
+
+    if not sources_loaded:
         raise FileNotFoundError(
-            "No supported dataset found. Add Fake.csv and True.csv, or add a labelled CSV "
-            "with 'text' and 'label' columns."
+            "No supported datasets found. Download them first."
         )
 
-    df, source_name = loaded
+    df = pd.concat(sources_loaded, ignore_index=True)
+    combined_source_name = " + ".join(source_names)
+    
     df = df.dropna(subset=["article_text", "label"]).copy()
     df["article_text"] = df["article_text"].astype(str).str.replace(r"\s+", " ", regex=True).str.strip()
     df = df[df["article_text"].str.len() > 80]
@@ -141,10 +194,10 @@ def load_dataset(data_dir=DATA_DIR, sample_size=None):
         )
 
     counts = df["label"].value_counts().to_dict()
-    print(f"Loaded {len(df):,} articles from {source_name}")
+    print(f"Total Combined Dataset: {len(df):,} articles")
     print(f"Class balance: real={counts.get(0, 0):,}, fake={counts.get(1, 0):,}")
 
-    return df, source_name
+    return df, source_names
 
 
 def build_features(train_texts, test_texts, train_cleaned, test_cleaned, feature_engineer):

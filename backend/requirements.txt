@@ -14,3 +14,9 @@ nltk
 joblib
 lime
 requests
+google-genai
+python-dotenv
+kagglehub
+pytest
+pytest-asyncio
+pytest-mock

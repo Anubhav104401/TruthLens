@@ -1,6 +1,23 @@
-{
-  "name": "fake_or_real_news.csv",
-  "url": "https://raw.githubusercontent.com/lutzhamel/fake-news/master/data/fake_or_real_news.csv",
-  "source_page": "https://github.com/lutzhamel/fake-news/blob/master/data/fake_or_real_news.csv",
-  "description": "Labelled fake/real news CSV derived from the commonly used fake-or-real-news dataset."
-}
+[
+  {
+    "id": "fake_or_real_news",
+    "name": "fake_or_real_news.csv",
+    "source": "https://github.com/lutzhamel/fake-news/blob/master/data/fake_or_real_news.csv",
+    "description": "Labelled fake/real news CSV derived from the commonly used fake-or-real-news dataset.",
+    "download_timestamp": "2026-07-09T09:58:45.134226+00:00"
+  },
+  {
+    "id": "isot",
+    "name": "ISOT Fake and Real News",
+    "source": "https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset",
+    "description": "ISOT Fake and Real News Dataset.",
+    "download_timestamp": "2026-07-09T09:58:45.134467+00:00"
+  },
+  {
+    "id": "liar",
+    "name": "LIAR Dataset",
+    "source": "https://cs.ucsb.edu/~william/data/liar_dataset.zip",
+    "description": "LIAR short political statements dataset.",
+    "download_timestamp": "2026-07-09T09:58:58.953770+00:00"
+  }
+]
