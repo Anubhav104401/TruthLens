@@ -194,10 +194,8 @@ The frontend renders this as a dashboard with colors, charts, a detailed Score B
 
 ## 📸 Screenshots
 
-*(To be added by user: Save your UI screenshots into an `assets/` folder in the root directory)*
-
 ![TruthLens Analysis Dashboard](assets/dashboard.png)
-![Score Breakdown & Web Verification](assets/score_breakdown.png)
+![Score Breakdown & Web Verification](assets/sourcesSearchedPreview.png)
 
 ---
 
