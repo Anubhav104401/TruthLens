@@ -34,6 +34,7 @@ class GeminiVerificationService:
         return hashlib.sha256(text.encode('utf-8')).hexdigest()
         
     def _create_fallback_response(self, error_reason: str) -> dict:
+        print(f"GEMINI FALLBACK TRIGGERED: {error_reason}")
         return {
             "verdict": "Unverifiable",
             "fake_likelihood": 50.0,
@@ -86,7 +87,10 @@ Article Text:
         json_instruction = """
 IMPORTANT: You MUST return your response as a valid JSON object EXACTLY matching the following structure. Do not wrap it in markdown block quotes (```json), just return the raw JSON object. You may include Google Search citation markers like [1] or [2] inside the string fields.
 
-CRITICAL: To avoid recitation filters, DO NOT quote any sources directly. You MUST paraphrase and synthesize all information entirely in your own words.
+EXTREMELY IMPORTANT - AVOID RECITATION FILTERS: 
+You MUST NOT quote any text directly from the article or from the search results.
+You MUST paraphrase everything in your own unique words. 
+For the 'snippet' field in sources, write a completely original 1-sentence summary rather than copying text from the search results.
 {
   "verdict": "Likely True" | "Likely False" | "Mixed" | "Unverifiable",
   "fake_likelihood": float (0-100),

@@ -304,6 +304,42 @@ function PredictionResult({ result }) {
             <SmallStat label="Rule adjustment" value={signedValue(Number(result.rule_penalty ?? 0))} tone={Number(result.rule_penalty ?? 0) > 0 ? 'red' : 'green'} />
           </div>
 
+          {result.weights_used && (
+            <div className={`${subCard} p-4`}>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Score Breakdown & Weights</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <IndicatorBar label="Machine Learning" value={Number(result.weights_used.ml ?? 0) * 100} tone="blue" />
+                <IndicatorBar label="Web Verification" value={Number(result.weights_used.gemini ?? 0) * 100} tone="amber" />
+                <IndicatorBar label="Rule Heuristics" value={Number(result.weights_used.rule ?? 0) * 100} tone="green" />
+              </div>
+            </div>
+          )}
+
+          {result.gemini_enabled && (result.gemini_confidence > 0 || result.gemini_sources?.length > 0) && (
+            <div className={`${subCard} p-4`}>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Web Verification Sources (Gemini)</h3>
+              {result.gemini_sources?.length ? (
+                <div className="mt-3 space-y-3">
+                  {result.gemini_sources.map((source, index) => (
+                    <div key={index} className="rounded-[12px] border border-[rgba(148,163,184,0.12)] bg-[rgba(255,255,255,0.7)] p-3 shadow-sm">
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-blue-700 hover:underline line-clamp-1"
+                      >
+                        {source.title}
+                      </a>
+                      <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2">{source.snippet}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500">No specific sources were cited.</p>
+              )}
+            </div>
+          )}
+
           <div className={`${subCard} p-4`}>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Explanation</h3>
             {result.reasons?.length ? (

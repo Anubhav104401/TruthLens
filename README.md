@@ -182,10 +182,22 @@ The backend returns a result object containing:
 - `prediction` — Fake or Real
 - `ml_confidence` — probability from the ML model
 - `rule_penalty` — handcrafted risk score
-- `final_score` — combined score
+- `gemini_confidence` — confidence from the live web verification
+- `weights_used` — precise weighting of ML, Rules, and Gemini
+- `gemini_sources` — live Google Search sources and snippets
+- `final_score` — combined ensemble score
 - `explanation` — words that mattered most
 
-The frontend renders this as a dashboard with colors, charts, and highlighted text.
+The frontend renders this as a dashboard with colors, charts, a detailed Score Breakdown, live Web Verification Sources, and highlighted text.
+
+---
+
+## 📸 Screenshots
+
+*(To be added by user: Save your UI screenshots into an `assets/` folder in the root directory)*
+
+![TruthLens Analysis Dashboard](assets/dashboard.png)
+![Score Breakdown & Web Verification](assets/score_breakdown.png)
 
 ---
 
