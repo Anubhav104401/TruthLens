@@ -196,6 +196,7 @@ The frontend renders this as a dashboard with colors, charts, a detailed Score B
 
 ![TruthLens Analysis Dashboard](assets/dashboard.png)
 ![Score Breakdown & Web Verification](assets/sourcesSearchedPreview.png)
+![Recent Analyses & Model Info](assets/recent_analyses.png)
 
 ---
 
